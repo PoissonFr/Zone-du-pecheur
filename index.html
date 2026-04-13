@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>La Zone du Pêcheur - Boutique & Blog</title>
+<meta name="description" content="Boutique de pêche : cannes, appâts, accessoires + blog spots de pêche France">
+
+<!-- SEO GOOGLE -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Store",
+  "name": "La Zone du Pêcheur",
+  "description": "Boutique de matériel de pêche et blog",
+  "address": {
+    "@type": "PostalAddress",
+    "addressCountry": "FR"
+  }
+}
+</script>
+
+<style>
+body{margin:0;font-family:Arial;background:#f4f4f4}
+
+/* NAV */
+nav{
+display:flex;
+justify-content:space-between;
+align-items:center;
+padding:15px;
+background:#0b3d91;
+color:white;
+position:sticky;
+top:0;
+}
+
+button{
+cursor:pointer;
+}
+
+/* HERO */
+.hero{
+height:65vh;
+background:url("https://images.unsplash.com/photo-1501706362039-c06b2d715385?auto=format&fit=crop&w=1500&q=80") center/cover;
+display:flex;
+align-items:center;
+justify-content:center;
+color:white;
+position:relative;
+text-align:center;
+}
+
+.hero::after{
+content:"";
+position:absolute;
+inset:0;
+background:rgba(0,0,0,0.5);
+}
+
+.hero h1{
+z-index:1;
+font-size:55px;
+}
+
+/* PRODUITS */
+.container{
+padding:30px;
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
+gap:20px;
+}
+
+.card{
+background:white;
+border-radius:10px;
+overflow:hidden;
+padding-bottom:10px;
+box-shadow:0 5px 15px rgba(0,0,0,0.1);
+}
+
+.card img{width:100%;height:170px;object-fit:cover}
+
+.card h3{margin:10px}
+.card p{margin:10px;color:#555}
+
+.card button{
+margin:10px;
+padding:10px;
+width:calc(100% - 20px);
+border:none;
+background:#0b3d91;
+color:white;
+border-radius:6px;
+}
+
+/* PANIER */
+.cart{
+position:fixed;
+right:0;
+top:0;
+width:300px;
+height:100%;
+background:white;
+box-shadow:-3px 0 10px rgba(0,0,0,0.2);
+padding:20px;
+display:none;
+overflow:auto;
+}
+
+.close{
+float:right;
+font-size:20px;
+cursor:pointer;
+}
+
+.checkout{
+background:green;
+color:white;
+padding:10px;
+width:100%;
+border:none;
+margin-top:10px;
+}
+
+/* ADMIN */
+.admin{
+background:#fff;
+padding:20px;
+margin:30px;
+border-radius:10px;
+}
+
+input{
+width:100%;
+padding:8px;
+margin:5px 0;
+}
+</style>
+</head>
+
+<body>
+
+<nav>
+<h2>🎣 La Zone du Pêcheur</h2>
+<button onclick="toggleCart()">🛒 Panier (<span id="count">0</span>)</button>
+</nav>
+
+<div class="hero">
+<h1>La Zone du Pêcheur</h1>
+</div>
+
+<!-- PRODUITS -->
+<div class="container" id="products"></div>
+
+<!-- PANIER -->
+<div class="cart" id="cart">
+<span class="close" onclick="toggleCart()">❌</span>
+<h2>Ton panier</h2>
+<ul id="cartList"></ul>
+<h3>Total : <span id="total">0</span> €</h3>
+
+<button class="checkout" onclick="checkout()">💳 Payer maintenant</button>
+</div>
+
+<!-- ADMIN -->
+<div class="admin">
+<h2>⚙️ Admin (ajouter produit)</h2>
+<input id="name" placeholder="Nom produit">
+<input id="price" placeholder="Prix (€)">
+<input id="img" placeholder="Image URL">
+<button onclick="addProduct()">Ajouter</button>
+</div>
+
+<script>
+
+let products = [
+{ name:"Canne à pêche pro", price:49, img:"https://images.unsplash.com/photo-1615719413546-198b25453f85" },
+{ name:"Appâts naturels", price:12, img:"https://images.unsplash.com/photo-1620921568795-3c9f1f8c9b3a" },
+{ name:"Kit accessoires pêche", price:29, img:"https://images.unsplash.com/photo-1616401784845-180882ba9ba8" }
+];
+
+let cart = JSON.parse(localStorage.getItem("cart")) || [];
+
+function renderProducts(){
+let box = document.getElementById("products");
+box.innerHTML="";
+
+products.forEach((p,i)=>{
+box.innerHTML += `
+<div class="card">
+<img src="${p.img}">
+<h3>${p.name}</h3>
+<p>${p.price} €</p>
+<button onclick="addToCart(${i})">Ajouter</button>
+</div>`;
+});
+}
+
+function addToCart(i){
+cart.push(products[i]);
+save();
+}
+
+function save(){
+localStorage.setItem("cart",JSON.stringify(cart));
+updateCart();
+}
+
+function updateCart(){
+document.getElementById("count").innerText = cart.length;
+
+let list = document.getElementById("cartList");
+list.innerHTML="";
+
+let total = 0;
+
+cart.forEach((p, i)=>{
+total += p.price;
+
+list.innerHTML += `
+<li>
+${p.name} - ${p.price}€
+<button onclick="removeItem(${i})">❌</button>
+</li>`;
+});
+
+document.getElementById("total").innerText = total;
+}
+
+function removeItem(i){
+cart.splice(i,1);
+save();
+}
+
+function toggleCart(){
+let c = document.getElementById("cart");
+c.style.display = (c.style.display==="block")?"none":"block";
+}
+
+function checkout(){
+
+// ⚠️ MODE SIMULATION
+alert("Redirection paiement (Stripe à connecter)");
+
+// 👉 ICI on branchera Stripe plus tard
+// window.location.href = "checkout.html";
+}
+
+function addProduct(){
+let n = document.getElementById("name").value;
+let p = document.getElementById("price").value;
+let img = document.getElementById("img").value;
+
+products.push({
+name:n,
+price:parseFloat(p),
+img:img
+});
+
+renderProducts();
+}
+
+renderProducts();
+updateCart();
+
+</script>
+
+</body>
+  </html>
